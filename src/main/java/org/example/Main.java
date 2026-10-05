@@ -52,19 +52,6 @@ import javafx.stage.Stage;
 
             timer.start();
 
-           /*// Quando a altura do Canvas mudar, redesenha o fundo.
-            canvas.heightProperty().addListener((obs, oldHeight, newHeight) -> {
-                gc.setFill(Color.LIGHTGRAY);
-                gc.fillRect(
-                        0,
-                        0,
-                        canvas.getWidth(),
-                        newHeight.doubleValue()
-                );
-
-                car.draw(gc);
-            });*/
-
             stage.setTitle("Teste JavaFX - Carro Autônomo");
             stage.setScene(scene);
             stage.show();

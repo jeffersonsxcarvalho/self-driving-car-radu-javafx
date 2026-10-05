@@ -11,6 +11,11 @@ public class Car {
     private double height;
     private Scene scene;
 
+    private double speed = 0;
+    private double acceleration = 0.2;
+    private double maxSpeed = 3;
+    private double friction = 0.05;
+
     private Controls controls;
 
     public Car(double x, double y, double width, double height, Scene scene) {
@@ -25,11 +30,36 @@ public class Car {
 
     public void update() {
         if(controls.isForward()){
-            this.y -= 2;
+            this.speed += this.acceleration;
         }
         if(controls.isReverse()){
-            this.y += 2;
+            this.speed -= this.acceleration;
         }
+        if(this.speed > this.maxSpeed) {
+            this.speed = this.maxSpeed;
+        }
+        if(this.speed < -this.maxSpeed/2) {
+            this.speed = -this.maxSpeed/2;
+        }
+        if(this.speed > 0) {
+            this.speed -= this.friction;
+        }
+        if(this.speed < 0) {
+            this.speed += this.friction;
+        }
+        if(Math.abs(this.speed)<this.friction){
+            this.speed = 0;
+        }
+
+        if(this.controls.isLeft()) {
+            this.x -= 2;
+        }
+
+        if(this.controls.isRight()) {
+            this.x += 2;
+        }
+
+        this.y -= this.speed;
     }
 
     public void  draw(GraphicsContext gc) {
