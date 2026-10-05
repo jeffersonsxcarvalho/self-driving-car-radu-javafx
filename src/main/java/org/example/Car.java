@@ -15,6 +15,7 @@ public class Car {
     private double acceleration = 0.2;
     private double maxSpeed = 3;
     private double friction = 0.05;
+    private double angle = 0;
 
     private Controls controls;
 
@@ -29,6 +30,10 @@ public class Car {
     }
 
     public void update() {
+        this.move();
+    }
+
+    private void move() {
         if(controls.isForward()){
             this.speed += this.acceleration;
         }
@@ -51,24 +56,35 @@ public class Car {
             this.speed = 0;
         }
 
-        if(this.controls.isLeft()) {
-            this.x -= 2;
+        if(this.speed != 0){
+            int flip = this.speed > 0 ? 1 : -1;
+            if(this.controls.isLeft()) {
+                this.angle += 0.03*flip;
+            }
+
+            if(this.controls.isRight()) {
+                this.angle -= 0.03*flip;
+            }
         }
 
-        if(this.controls.isRight()) {
-            this.x += 2;
-        }
-
-        this.y -= this.speed;
+        this.x -= Math.sin(this.angle)*this.speed;
+        this.y -= Math.cos(this.angle)*this.speed;
     }
 
     public void  draw(GraphicsContext gc) {
+        gc.save();
+
+        gc.translate(this.x, this.y);
+        gc.rotate(Math.toDegrees(-this.angle));
+
         gc.setFill(Color.BLACK);
         gc.fillRect(
-                x - width/2,
-                y-height/2,
+                -this.width/2,
+                -this.height/2,
                 width,
                 height
         );
+
+        gc.restore();
     }
 }
