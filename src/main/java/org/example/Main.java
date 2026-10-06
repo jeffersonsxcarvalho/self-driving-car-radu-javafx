@@ -36,7 +36,9 @@ import javafx.stage.Stage;
             // A altura do Canvas acompanha a altura da janela.
             canvas.heightProperty().bind(scene.heightProperty());
 
-            Car car = new Car(100, 100, 30, 50, scene);
+            Road road = new Road(canvas.getWidth()/2, canvas.getWidth() * 0.9);
+
+            Car car = new Car(road.getLaneCenter(1), 100, 30, 50, scene);
 
             AnimationTimer timer = new AnimationTimer() {
                 @Override
@@ -46,7 +48,14 @@ import javafx.stage.Stage;
                     gc.setFill(Color.LIGHTGRAY);
                     gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
+                    gc.save();
+                    gc.translate(0, -car.getY() + canvas.getHeight()*0.7);
+
+                    road.draw(gc);
+
                     car.draw(gc);
+
+                    gc.restore();
                 }
             };
 

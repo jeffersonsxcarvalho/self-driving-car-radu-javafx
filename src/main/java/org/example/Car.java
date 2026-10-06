@@ -29,6 +29,10 @@ public class Car {
         this.controls = new Controls(scene);
     }
 
+    public double getY() {
+        return y;
+    }
+
     public void update() {
         this.move();
     }
@@ -87,4 +91,6 @@ public class Car {
 
         gc.restore();
     }
+
+
 }
