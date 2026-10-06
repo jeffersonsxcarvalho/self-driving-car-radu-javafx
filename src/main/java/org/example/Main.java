@@ -43,7 +43,7 @@ import javafx.stage.Stage;
             AnimationTimer timer = new AnimationTimer() {
                 @Override
                 public void handle(long l) {
-                    car.update();
+                    car.update(road.borders);
 
                     gc.setFill(Color.LIGHTGRAY);
                     gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());

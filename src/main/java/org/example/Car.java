@@ -4,6 +4,8 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.util.List;
+
 public class Car {
     private double x;
     private double y;
@@ -17,6 +19,7 @@ public class Car {
     private double friction = 0.05;
     private double angle = 0;
 
+    private Sensor sensor;
     private Controls controls;
 
     public Car(double x, double y, double width, double height, Scene scene) {
@@ -26,15 +29,26 @@ public class Car {
         this.height = height;
         this.scene = scene;
 
+        this.sensor = new Sensor(this);
         this.controls = new Controls(scene);
+    }
+
+    public double getX() {
+        return x;
     }
 
     public double getY() {
         return y;
     }
 
-    public void update() {
+    public double getAngle() {
+        return angle;
+    }
+
+    public void update(List<List<Point>> roadBorders) {
+
         this.move();
+        this.sensor.update(roadBorders);
     }
 
     private void move() {
@@ -90,6 +104,8 @@ public class Car {
         );
 
         gc.restore();
+
+        this.sensor.draw(gc);
     }
 
 

@@ -20,7 +20,6 @@ public class Road {
 
     List<List<Point>> borders = new ArrayList<>();
 
-
     public Road(double x, double width) {
         this.x = x;
         this.width = width;
