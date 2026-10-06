@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.example.Utils.polyIntersect;
@@ -23,19 +24,30 @@ public class Car {
     private double friction = 0.05;
     private double angle = 0;
     private boolean damaged = false;
+    private String controlType;
 
     private Sensor sensor;
     private Controls controls;
+    private NeuralNetwork brain;
+    private boolean useBrain;
 
-    public Car(double x, double y, double width, double height, Scene scene) {
+    public Car(double x, double y, double width, double height, Scene scene, String controlType, double maxSpeed) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.scene = scene;
+        this.maxSpeed = maxSpeed;
+        this.controlType = controlType;
 
-        this.sensor = new Sensor(this);
-        this.controls = new Controls(scene);
+        if(!controlType.equals("DUMMY")){
+            this.sensor = new Sensor(this);
+            this.brain = new NeuralNetwork(
+                    new int[] {this.sensor.rays.size(), 6, 4}
+            );
+        }
+        this.controls = new Controls(scene, controlType);
+        this.useBrain=controlType=="AI";
     }
 
     public double getX() {
@@ -50,18 +62,57 @@ public class Car {
         return angle;
     }
 
-    public void update(List<List<Point>> roadBorders) {
+    public List<Point> getPolygon() {
+        return polygon;
+    }
+
+    public void update(List<List<Point>> roadBorders, List<Car> traffic) {
         if(!this.damaged){
             this.move();
             this.polygon = createPolygon();
-            this.damaged = assessDamage(roadBorders);
+            this.damaged = assessDamage(roadBorders, traffic);
         }
-        this.sensor.update(roadBorders);
+
+        if(this.sensor != null) {
+            this.sensor.update(roadBorders, traffic);
+
+            List<Intersection> readings = this.sensor.readings;
+
+            double[] offsets = new double[readings.size()];
+
+            for (int i = 0; i < readings.size(); i++) {
+                if(readings.get(i) == null) {
+                    offsets[i] = 0;
+                }else {
+                    offsets[i] = 1 - readings.get(i).getOffset();
+                }
+            }
+
+            this.sensor.readings
+                    .stream()
+                    .map(s -> s==null?0:1-s.getOffset())
+                    .toList();
+            double[] outputs = NeuralNetwork.feedForward(offsets, this.brain);
+
+            System.out.println(Arrays.toString(outputs));
+
+            if(this.useBrain) {
+                this.controls.setForward(outputs[0]==1);
+                this.controls.setLeft(outputs[1]==1);
+                this.controls.setRight(outputs[2]==1);
+                this.controls.setReverse(outputs[3]==1);
+            }
+        }
     }
 
-    private boolean assessDamage(List<List<Point>> roadBorders) {
+    private boolean assessDamage(List<List<Point>> roadBorders, List<Car> traffic) {
         for (int i = 0; i < roadBorders.size(); i++) {
             if(polyIntersect(this.polygon, roadBorders.get(i))){
+                return true;
+            }
+        }
+        for (int i = 0; i < traffic.size(); i++) {
+            if(polyIntersect(this.polygon, traffic.get(i).polygon)){
                 return true;
             }
         }
@@ -133,12 +184,12 @@ public class Car {
         this.y -= Math.cos(this.angle)*this.speed;
     }
 
-    public void  draw(GraphicsContext gc) {
+    public void  draw(GraphicsContext gc, Color color) {
 
         if(this.damaged){
             gc.setFill(Color.GRAY);
         }else{
-            gc.setFill(Color.BLACK);
+            gc.setFill(color);
         }
 
         gc.beginPath();
@@ -154,7 +205,9 @@ public class Car {
         }
         gc.fill();
 
-        this.sensor.draw(gc);
+        if(this.sensor != null) {
+            this.sensor.draw(gc);
+        }
     }
 
 

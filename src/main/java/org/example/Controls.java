@@ -8,7 +8,18 @@ public class Controls {
     private boolean right = false;
     private boolean reverse = false;
 
-    public Controls(Scene scene) {
+    public Controls(Scene scene, String type) {
+
+
+        switch (type) {
+            case "KEYS" : this.addKeyboardListeners(scene);
+            break;
+            case "DUMMY" : this.forward = true;
+
+        }
+    }
+
+    public void addKeyboardListeners(Scene scene){
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case UP:
@@ -64,5 +75,21 @@ public class Controls {
 
     public boolean isReverse() {
         return reverse;
+    }
+
+    public void setForward(boolean forward) {
+        this.forward = forward;
+    }
+
+    public void setLeft(boolean left) {
+        this.left = left;
+    }
+
+    public void setRight(boolean right) {
+        this.right = right;
+    }
+
+    public void setReverse(boolean reverse) {
+        this.reverse = reverse;
     }
 }
