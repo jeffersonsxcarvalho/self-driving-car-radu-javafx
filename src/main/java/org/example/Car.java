@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Car {
@@ -12,6 +13,7 @@ public class Car {
     private double width;
     private double height;
     private Scene scene;
+    private List<Point> polygon;
 
     private double speed = 0;
     private double acceleration = 0.2;
@@ -46,9 +48,36 @@ public class Car {
     }
 
     public void update(List<List<Point>> roadBorders) {
-
         this.move();
+        this.polygon = createPolygon();
         this.sensor.update(roadBorders);
+    }
+
+    private List<Point> createPolygon() {
+        List<Point> points = new ArrayList<>();
+
+        double rad = Math.hypot(this.width, this.height)/2;
+        double alpha = Math.atan2(this.width, this.height);
+
+        points.add(new Point(
+                this.x - Math.sin(this.angle - alpha)*rad,
+                this.y - Math.cos(this.angle - alpha)*rad
+                ));
+        points.add(new Point(
+                this.x - Math.sin(this.angle + alpha)*rad,
+                this.y - Math.cos(this.angle + alpha)*rad
+        ));
+        points.add(new Point(
+                this.x - Math.sin(Math.PI + this.angle - alpha)*rad,
+                this.y - Math.cos(Math.PI + this.angle - alpha)*rad
+        ));
+        points.add(new Point(
+                this.x - Math.sin(Math.PI + this.angle + alpha)*rad,
+                this.y - Math.cos(Math.PI + this.angle + alpha)*rad
+        ));
+
+        return points;
+
     }
 
     private void move() {
@@ -90,20 +119,21 @@ public class Car {
     }
 
     public void  draw(GraphicsContext gc) {
-        gc.save();
-
-        gc.translate(this.x, this.y);
-        gc.rotate(Math.toDegrees(-this.angle));
 
         gc.setFill(Color.BLACK);
-        gc.fillRect(
-                -this.width/2,
-                -this.height/2,
-                width,
-                height
-        );
 
-        gc.restore();
+        gc.beginPath();
+        gc.moveTo(
+                this.polygon.get(0).getX(),
+                this.polygon.get(0).getY()
+        );
+        for (int i = 1; i < this.polygon.size(); i++) {
+            gc.lineTo(
+                    this.polygon.get(i).getX(),
+                    this.polygon.get(i).getY()
+            );
+        }
+        gc.fill();
 
         this.sensor.draw(gc);
     }
