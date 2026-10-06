@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.Utils.polyIntersect;
+
 public class Car {
     private double x;
     private double y;
@@ -20,6 +22,7 @@ public class Car {
     private double maxSpeed = 3;
     private double friction = 0.05;
     private double angle = 0;
+    private boolean damaged = false;
 
     private Sensor sensor;
     private Controls controls;
@@ -48,9 +51,21 @@ public class Car {
     }
 
     public void update(List<List<Point>> roadBorders) {
-        this.move();
-        this.polygon = createPolygon();
+        if(!this.damaged){
+            this.move();
+            this.polygon = createPolygon();
+            this.damaged = assessDamage(roadBorders);
+        }
         this.sensor.update(roadBorders);
+    }
+
+    private boolean assessDamage(List<List<Point>> roadBorders) {
+        for (int i = 0; i < roadBorders.size(); i++) {
+            if(polyIntersect(this.polygon, roadBorders.get(i))){
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Point> createPolygon() {
@@ -120,7 +135,11 @@ public class Car {
 
     public void  draw(GraphicsContext gc) {
 
-        gc.setFill(Color.BLACK);
+        if(this.damaged){
+            gc.setFill(Color.GRAY);
+        }else{
+            gc.setFill(Color.BLACK);
+        }
 
         gc.beginPath();
         gc.moveTo(

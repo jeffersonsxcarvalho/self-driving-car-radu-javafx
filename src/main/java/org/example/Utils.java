@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.List;
+
 public class Utils {
     public static double lerp(double A, double B, double t) {
         return A + (B - A) * t;
@@ -21,6 +23,24 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static boolean polyIntersect(List<Point> poly1, List<Point> poly2) {
+        for (int i = 0; i < poly1.size(); i++) {
+            for (int j = 0; j < poly2.size(); j++) {
+                Intersection touch = getIntersection(
+                        poly1.get(i),
+                        poly1.get((i+1)%poly1.size()),
+                        poly2.get(j),
+                        poly2.get((j+1)%poly2.size())
+
+                );
+                if(touch != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 
