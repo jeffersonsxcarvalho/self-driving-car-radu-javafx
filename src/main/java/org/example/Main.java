@@ -10,7 +10,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-    public class Main extends Application {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main extends Application {
 
         @Override
         public void start(Stage stage) {
@@ -38,12 +41,19 @@ import javafx.stage.Stage;
 
             Road road = new Road(canvas.getWidth()/2, canvas.getWidth() * 0.9);
 
-            Car car = new Car(road.getLaneCenter(1), 100, 30, 50, scene);
+            Car car = new Car(road.getLaneCenter(1), 100, 30, 50, scene, "KEYS", 3);
+
+            List<Car> traffic = new ArrayList<>();
+            traffic.add(new Car(road.getLaneCenter(1), -100, 30, 50, scene, "DUMMY", 2));
 
             AnimationTimer timer = new AnimationTimer() {
                 @Override
                 public void handle(long l) {
-                    car.update(road.borders);
+
+                    for (int i = 0; i < traffic.size(); i++) {
+                        traffic.get(i).update(road.borders, new ArrayList<>());
+                    }
+                    car.update(road.borders, traffic);
 
                     gc.setFill(Color.LIGHTGRAY);
                     gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -53,7 +63,10 @@ import javafx.stage.Stage;
 
                     road.draw(gc);
 
-                    car.draw(gc);
+                    for (int i = 0; i < traffic.size(); i++) {
+                        traffic.get(i).draw(gc, Color.RED);
+                    }
+                    car.draw(gc, Color.BLUE);
 
                     gc.restore();
                 }

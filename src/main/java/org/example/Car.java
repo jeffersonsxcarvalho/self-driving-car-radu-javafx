@@ -23,19 +23,24 @@ public class Car {
     private double friction = 0.05;
     private double angle = 0;
     private boolean damaged = false;
+    private String controlType;
 
     private Sensor sensor;
     private Controls controls;
 
-    public Car(double x, double y, double width, double height, Scene scene) {
+    public Car(double x, double y, double width, double height, Scene scene, String controlType, double maxSpeed) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.scene = scene;
+        this.maxSpeed = maxSpeed;
+        this.controlType = controlType;
 
-        this.sensor = new Sensor(this);
-        this.controls = new Controls(scene);
+        if(!controlType.equals("DUMMY")){
+            this.sensor = new Sensor(this);
+        }
+        this.controls = new Controls(scene, controlType);
     }
 
     public double getX() {
@@ -50,18 +55,30 @@ public class Car {
         return angle;
     }
 
-    public void update(List<List<Point>> roadBorders) {
+    public List<Point> getPolygon() {
+        return polygon;
+    }
+
+    public void update(List<List<Point>> roadBorders, List<Car> traffic) {
         if(!this.damaged){
             this.move();
             this.polygon = createPolygon();
-            this.damaged = assessDamage(roadBorders);
+            this.damaged = assessDamage(roadBorders, traffic);
         }
-        this.sensor.update(roadBorders);
+
+        if(this.sensor != null) {
+            this.sensor.update(roadBorders, traffic);
+        }
     }
 
-    private boolean assessDamage(List<List<Point>> roadBorders) {
+    private boolean assessDamage(List<List<Point>> roadBorders, List<Car> traffic) {
         for (int i = 0; i < roadBorders.size(); i++) {
             if(polyIntersect(this.polygon, roadBorders.get(i))){
+                return true;
+            }
+        }
+        for (int i = 0; i < traffic.size(); i++) {
+            if(polyIntersect(this.polygon, traffic.get(i).polygon)){
                 return true;
             }
         }
@@ -133,12 +150,12 @@ public class Car {
         this.y -= Math.cos(this.angle)*this.speed;
     }
 
-    public void  draw(GraphicsContext gc) {
+    public void  draw(GraphicsContext gc, Color color) {
 
         if(this.damaged){
             gc.setFill(Color.GRAY);
         }else{
-            gc.setFill(Color.BLACK);
+            gc.setFill(color);
         }
 
         gc.beginPath();
@@ -154,7 +171,9 @@ public class Car {
         }
         gc.fill();
 
-        this.sensor.draw(gc);
+        if(this.sensor != null) {
+            this.sensor.draw(gc);
+        }
     }
 
 

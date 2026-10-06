@@ -19,17 +19,21 @@ public class Sensor {
         this.car = car;
     }
 
-    public void update(List<List<Point>> roadBorders) {
+    public void update(List<List<Point>> roadBorders, List<Car> traffic) {
         this.castRays();
         this.readings.clear();
         for (int i = 0; i < this.rays.size(); i++) {
             this.readings.add(
-                    this.getReading(this.rays.get(i), roadBorders)
+                    this.getReading(
+                            this.rays.get(i),
+                            roadBorders,
+                            traffic
+                    )
             );
         }
     }
 
-    private Intersection getReading(List<Point> ray, List<List<Point>> roadBorders){
+    private Intersection getReading(List<Point> ray, List<List<Point>> roadBorders, List<Car> traffic){
         List<Intersection> touches = new ArrayList<>();
 
         for (int i = 0; i < roadBorders.size(); i++) {
@@ -41,6 +45,21 @@ public class Sensor {
             );
             if(touch != null) {
                 touches.add(touch);
+            }
+        }
+
+        for (int i = 0; i < traffic.size(); i++) {
+            List<Point> poly = traffic.get(i).getPolygon();
+            for (int j = 0; j < poly.size(); j++) {
+                Intersection value = Utils.getIntersection(
+                        ray.get(0),
+                        ray.get(1),
+                        poly.get(j),
+                        poly.get((j+1)% poly.size())
+                );
+                if(value != null) {
+                    touches.add(value);
+                }
             }
         }
 
