@@ -43,7 +43,7 @@ public class Car {
         if(!controlType.equals("DUMMY")){
             this.sensor = new Sensor(this);
             this.brain = new NeuralNetwork(
-                    new int[] {this.sensor.rays.size(), 6, 4}
+                    new int[] {this.sensor.getRayCount(), 6, 4}
             );
         }
         this.controls = new Controls(scene, controlType);
@@ -64,6 +64,10 @@ public class Car {
 
     public List<Point> getPolygon() {
         return polygon;
+    }
+
+    public NeuralNetwork getBrain() {
+        return brain;
     }
 
     public void update(List<List<Point>> roadBorders, List<Car> traffic) {
@@ -93,8 +97,6 @@ public class Car {
                     .map(s -> s==null?0:1-s.getOffset())
                     .toList();
             double[] outputs = NeuralNetwork.feedForward(offsets, this.brain);
-
-            System.out.println(Arrays.toString(outputs));
 
             if(this.useBrain) {
                 this.controls.setForward(outputs[0]==1);

@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -18,28 +19,40 @@ public class Main extends Application {
         @Override
         public void start(Stage stage) {
 
-            Canvas canvas = new Canvas(200, 600);
+            Canvas carCanvas = new Canvas(200, 600);
+            Canvas networkCanvas = new Canvas(300, 600);
 
-            GraphicsContext gc = canvas.getGraphicsContext2D();
+            GraphicsContext carGc = carCanvas.getGraphicsContext2D();
+            GraphicsContext networkGc = networkCanvas.getGraphicsContext2D();
 
-            gc.setFill(Color.LIGHTGRAY);
-            gc.fillRect(
+            carGc.setFill(Color.LIGHTGRAY);
+            carGc.fillRect(
                     0,
                     0,
-                    canvas.getWidth(),
-                    canvas.getHeight()
+                    carCanvas.getWidth(),
+                    carCanvas.getHeight()
             );
 
-            StackPane root = new StackPane(canvas);
-            StackPane.setAlignment(canvas, Pos.TOP_CENTER);
+            networkGc.setFill(Color.BLACK);
+            networkGc.fillRect(
+                    0,
+                    0,
+                    networkCanvas.getWidth(),
+                    networkCanvas.getHeight()
+            );
 
-            Scene scene = new Scene(root, 200, 600);
+            HBox root = new HBox(carCanvas, networkCanvas);
+            root.setAlignment(Pos.TOP_LEFT);
+
+            Scene scene = new Scene(root, 1080, 720);
             scene.setFill(Color.DARKGRAY);
 
             // A altura do Canvas acompanha a altura da janela.
-            canvas.heightProperty().bind(scene.heightProperty());
+            carCanvas.heightProperty().bind(scene.heightProperty());
+            networkCanvas.heightProperty().bind(scene.heightProperty());
+            networkCanvas.widthProperty().bind(scene.widthProperty());
 
-            Road road = new Road(canvas.getWidth()/2, canvas.getWidth() * 0.9);
+            Road road = new Road(carCanvas.getWidth()/2, carCanvas.getWidth() * 0.9);
 
             Car car = new Car(road.getLaneCenter(1), 100, 30, 50, scene, "AI", 3);
 
@@ -50,26 +63,37 @@ public class Main extends Application {
                 @Override
                 public void handle(long l) {
 
+                    double time = (l / 1_000_000_000.0)%10;
+
                     for (int i = 0; i < traffic.size(); i++) {
                         traffic.get(i).update(road.borders, new ArrayList<>());
                     }
                     car.update(road.borders, traffic);
 
-                    gc.setFill(Color.LIGHTGRAY);
-                    gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    carGc.setFill(Color.LIGHTGRAY);
+                    carGc.fillRect(0, 0, carCanvas.getWidth(), carCanvas.getHeight());
 
-                    gc.save();
-                    gc.translate(0, -car.getY() + canvas.getHeight()*0.7);
+                    networkGc.setFill(Color.BLACK);
+                    networkGc.fillRect(0, 0, networkCanvas.getWidth(), networkCanvas.getHeight());
 
-                    road.draw(gc);
+                    carGc.save();
+                    carGc.translate(0, -car.getY() + carCanvas.getHeight()*0.7);
+
+                    road.draw(carGc);
 
                     for (int i = 0; i < traffic.size(); i++) {
-                        traffic.get(i).draw(gc, Color.RED);
+                        traffic.get(i).draw(carGc, Color.RED);
                     }
-                    car.draw(gc, Color.BLUE);
+                    car.draw(carGc, Color.BLUE);
 
-                    gc.restore();
+                    carGc.restore();
+
+                    networkGc.setLineDashOffset(time);
+
+                    Visualizer.drawNetwork(networkGc, car.getBrain());
                 }
+
+
             };
 
             timer.start();

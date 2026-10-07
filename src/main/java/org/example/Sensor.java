@@ -33,6 +33,10 @@ public class Sensor {
         }
     }
 
+    public int getRayCount() {
+        return rayCount;
+    }
+
     private Intersection getReading(List<Point> ray, List<List<Point>> roadBorders, List<Car> traffic){
         List<Intersection> touches = new ArrayList<>();
 

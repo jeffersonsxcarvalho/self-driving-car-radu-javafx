@@ -15,6 +15,10 @@ public class NeuralNetwork {
         }
     }
 
+    public List<Level> getLevels() {
+        return levels;
+    }
+
     static double[] feedForward(double[] givenInputs, NeuralNetwork network) {
         double[] outputs = Level.feedForward(
                 givenInputs,

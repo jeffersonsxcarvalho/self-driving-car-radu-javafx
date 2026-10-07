@@ -11,6 +11,7 @@ public class Level {
     private List<double[]> weights;
 
     public Level(int inputCount, int outputCount) {
+
         this.inputs = new double[inputCount];
         this.outputs = new double[outputCount];
         this.biases = new double[outputCount];
@@ -22,6 +23,20 @@ public class Level {
 
         Level.randomize(this);
     }
+
+    public double[] getInputs() {
+        return inputs;
+    }
+
+    public double[] getOutputs() {
+        return outputs;
+    }
+
+    public double[] getBiases() {
+        return biases;
+    }
+
+    public List<double[]> getWeights() { return weights; }
 
     private static void randomize(Level level) {
         for (int i = 0; i < level.inputs.length; i++) {

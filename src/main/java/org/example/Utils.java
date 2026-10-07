@@ -1,5 +1,7 @@
 package org.example;
 
+import javafx.scene.paint.Color;
+
 import java.util.List;
 
 public class Utils {
@@ -41,6 +43,14 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static Color getRGBA(double value) {
+        double alpha = Math.abs(value);
+        int R = value < 0 ? 0 : 255;
+        int G = R;
+        int B = value > 0 ? 0 : 255;
+        return Color.rgb(R, G, B, alpha);
     }
 }
 
