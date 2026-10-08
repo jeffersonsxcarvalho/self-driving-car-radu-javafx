@@ -10,6 +10,9 @@ public class Level {
 
     private List<double[]> weights;
 
+    public Level() {
+    }
+
     public Level(int inputCount, int outputCount) {
 
         this.inputs = new double[inputCount];

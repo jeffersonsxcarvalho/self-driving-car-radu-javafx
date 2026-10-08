@@ -70,6 +70,10 @@ public class Car {
         return brain;
     }
 
+    public void setBrain(NeuralNetwork brain) {
+        this.brain = brain;
+    }
+
     public void update(List<List<Point>> roadBorders, List<Car> traffic) {
         if(!this.damaged){
             this.move();
@@ -186,7 +190,7 @@ public class Car {
         this.y -= Math.cos(this.angle)*this.speed;
     }
 
-    public void  draw(GraphicsContext gc, Color color) {
+    public void  draw(GraphicsContext gc, Color color, boolean drawSensor) {
 
         if(this.damaged){
             gc.setFill(Color.GRAY);
@@ -207,7 +211,7 @@ public class Car {
         }
         gc.fill();
 
-        if(this.sensor != null) {
+        if(this.sensor != null && drawSensor) {
             this.sensor.draw(gc);
         }
     }

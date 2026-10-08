@@ -77,9 +77,6 @@ public class Visualizer {
                 double value = level.getWeights().get(i)[j];
                 gc.setStroke(Utils.getRGBA(value));
 
-                System.out.println(Arrays.toString(gc.getLineDashes()));
-                System.out.println(gc.getLineDashOffset());
-
                 gc.stroke();
             }
         }

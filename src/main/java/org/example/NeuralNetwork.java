@@ -6,6 +6,9 @@ import java.util.List;
 public class NeuralNetwork {
     private List<Level> levels;
 
+    public NeuralNetwork() {
+    }
+
     public NeuralNetwork(int[] neuronCounts) {
         levels = new ArrayList<>();
         for (int i = 0; i < neuronCounts.length - 1; i++) {
@@ -31,6 +34,27 @@ public class NeuralNetwork {
             );
         }
         return outputs;
+    }
+
+    static void mutate(NeuralNetwork network, double amount) {
+        network.levels.forEach(level -> {
+            for (int i = 0; i < level.getBiases().length; i++) {
+                level.getBiases()[i] = Utils.lerp(
+                        level.getBiases()[i],
+                        Math.random()*2 -1,
+                        amount
+                );
+            }
+            for (int i = 0; i < level.getWeights().size(); i++) {
+                for (int j = 0; j < level.getWeights().get(i).length; j++) {
+                    level.getWeights().get(i)[j] = Utils.lerp(
+                            level.getWeights().get(i)[j],
+                            Math.random()*2 -1,
+                            amount
+                    );
+                }
+            }
+        });
     }
 
 
